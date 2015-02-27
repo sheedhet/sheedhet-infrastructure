@@ -9,7 +9,7 @@
     "guest_os_type": "Ubuntu_64",
 
     "vboxmanage": [
-      ["modifyvm", "{{.Name}}", "--vram", "32"]
+      ["modifyvm", "{{.Name}}", "--memory", "1024"]
     ],
 
     "disk_size" : 10000,
@@ -25,6 +25,8 @@
     "ssh_username": "{{user `ssh_name`}}",
     "ssh_password": "{{user `ssh_pass`}}",
     "ssh_wait_timeout": "20m",
+
+    "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
 
     "shutdown_command": "echo {{user `ssh_pass`}} | sudo -S shutdown -P now",
 
