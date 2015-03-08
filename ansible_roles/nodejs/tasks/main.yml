@@ -1,0 +1,12 @@
+---
+# This playbook installs Node.js
+
+- name: Ensure Node.js is installed
+  apt: pkg={{ item }}
+       state=present
+       update_cache=yes
+       cache_valid_time=3600
+  with_items:
+  - nodejs
+  - nodejs-legacy
+  - npm
