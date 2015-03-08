@@ -1,0 +1,5 @@
+---
+
+# All of these ruby versions will be installed
+ruby_default_versions:
+  - ruby-2.2.0

@@ -1,0 +1,34 @@
+---
+# This playbook installs a system-wide RVM and the Ruby versions we use
+
+- name: Ensure packages needed to build RVM and various rubies are present
+  apt: pkg={{ item }} state=present update_cache=yes cache_valid_time=3600
+  with_items:
+  - libreadline6-dev
+  - gawk
+  - libsqlite3-dev
+  - sqlite3
+  - autoconf
+  - libgdbm-dev
+  - libncurses5-dev
+  - automake
+  - libtool
+  - bison
+  - pkg-config
+  - libffi-dev
+
+- name: Ensure the RVM GPG key is present
+  shell: curl -sSL https://rvm.io/mpapis.asc | sudo gpg --import -
+
+- name: Ensure RVM multi-user is present
+  shell: curl -sSL https://get.rvm.io | sudo bash -s stable
+         creates={{ rvm_install_root }}
+
+- include: install.yml ruby_versions={{ ruby_default_versions }}
+
+- name: Ensure system-wide gemrc file is present
+  copy: src=gemrc
+        dest=/etc/gemrc
+        owner=root
+        group=root
+        mode=0644

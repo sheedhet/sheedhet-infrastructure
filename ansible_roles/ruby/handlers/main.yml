@@ -1,0 +1,4 @@
+---
+
+- name: fix rvm permissions
+  shell: "{{ rvm_install_root }}/bin/rvm fix-permissions"

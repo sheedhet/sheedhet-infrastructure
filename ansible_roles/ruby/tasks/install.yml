@@ -1,0 +1,7 @@
+---
+
+- name: Ensure requested Ruby version is installed via RVM
+  shell: "{{ rvm_install_root }}/bin/rvm install {{ item }} --autolibs=2
+         creates={{ rvm_install_root }}/rubies/{{ item }}"
+  with_items: ruby_versions
+  notify: fix rvm permissions

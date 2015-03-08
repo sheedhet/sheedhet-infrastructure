@@ -1,0 +1,5 @@
+---
+
+# A couple of global RVM variables needed in a few roles
+rvm_group: rvm
+rvm_install_root: /usr/local/rvm
