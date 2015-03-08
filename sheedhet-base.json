@@ -2,7 +2,7 @@
   "variables": {
     "ssh_name": "vagrant",
     "ssh_pass": "vagrant",
-    "hostname": "packer-test"
+    "hostname": "sheedhet-base"
   },
   "builders": [{
     "type": "virtualbox-iso",
@@ -18,7 +18,7 @@
     "iso_checksum": "83aabd8dcf1e8f469f3c72fff2375195",
     "iso_checksum_type": "md5",
 
-    "http_directory" : "ubuntu_64",
+    "http_directory" : "http",
     "http_port_min" : 9001,
     "http_port_max" : 9001,
 
@@ -33,7 +33,7 @@
     "boot_command" : [
       "<esc><esc><enter><wait>",
       "/install/vmlinuz noapic ",
-      "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+      "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-14.04.02-preseed.cfg ",
       "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
       "hostname={{user `hostname`}} ",
       "fb=false debconf/frontend=noninteractive ",
@@ -47,6 +47,30 @@
       "type": "vagrant",
       "output": "{{user `hostname`}}-{{.Provider}}.box"
     }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "shell_scripts/base.sh",
+        "shell_scripts/install-ansible.sh",
+        "shell_scripts/install-virtualbox.sh"
+      ],
+      "execute_command": "echo '{{user `ssh_pass`}}' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "sheedhet-base.yml",
+      "command": "echo '{{user `ssh_pass`}}' | sudo -S ansible-playbook",
+      "group_vars": "group_vars",
+      "role_paths": [
+        "ansible_roles/common",
+        "ansible_roles/ruby",
+        "ansible_roles/postgresql",
+        "ansible_roles/nginx",
+        "ansible_roles/nodejs",
+        "ansible_roles/sheedhetbox"
+      ]
+    }
   ]
-
 }
