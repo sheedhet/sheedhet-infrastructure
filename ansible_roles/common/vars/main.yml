@@ -1,0 +1,10 @@
+---
+# Timezone for all nodes
+common_timezone: Etc/UTC
+
+# Locale for all nodes
+common_language: en_US
+common_locale: en_US.UTF-8
+
+# tasks/pkg-*.yml
+common_pkg_state: present

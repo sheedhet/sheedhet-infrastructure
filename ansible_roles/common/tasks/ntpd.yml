@@ -1,0 +1,28 @@
+---
+# Configures NTP daemon
+
+- name: Ensure NTP is installed
+  apt: pkg=ntp
+       state=present
+       update_cache=yes
+       cache_valid_time=3600
+  tags: ntpd
+
+- name: Ensure NTP is running and enabled at boot
+  service: name=ntp
+           state=started
+           enabled=yes
+  tags: ntpd
+
+- name: Divert original /etc/ntp.conf
+  command: dpkg-divert --quiet --local --divert /etc/ntp.conf.dpkg-divert --rename /etc/ntp.conf
+           creates=/etc/ntp.conf.dpkg-divert
+
+- name: Ensure the NTP configuration is set correctly
+  template: src=ntp.conf.j2
+            dest=/etc/ntp.conf
+            owner=root
+            group=root
+            mode=0644
+  notify: restart ntpd
+  tags: ntpd

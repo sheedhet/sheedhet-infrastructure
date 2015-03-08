@@ -1,0 +1,54 @@
+---
+# This playbook contains common setup plays.
+
+- name: Ensure the build date/time is recorded
+  copy: content={{ ansible_date_time.iso8601 }}
+        dest=/etc/bsq_box_build_time
+        owner=root
+        group=root
+        mode=0444
+        force=no
+  notify:
+    - clean tmp directory
+    - clean unneeded packages
+
+- name: Update and safe upgrade apt packages
+  apt: upgrade=safe
+       update_cache=yes
+       cache_valid_time=3600
+  notify:
+    - clean apt caches
+
+- name: Divert original /etc/default/locale
+  command: dpkg-divert --quiet --local --divert /etc/default/locale.dpkg-divert --rename /etc/default/locale
+           creates=/etc/default/locale.dpkg-divert
+
+- name: Set the system language to {{ common_language }} and locale to {{ common_locale }}
+  template: src=locale.j2
+            dest=/etc/default/locale
+            owner=root
+            group=root
+            mode=0644
+
+- name: Divert original /etc/timezone
+  command: dpkg-divert --quiet --local --divert /etc/timezone.dpkg-divert --rename /etc/timezone
+           creates=/etc/timezone.dpkg-divert
+
+# Note that the weird content syntax below is important because it adds a newline after the content which
+# mimics what dpkg-reconfigure does to it when it reloads the timezone. Don't change it.
+- name: Set the time zone to {{ common_timezone }}
+  copy: |
+        content='{{ common_timezone }}
+        '
+        dest=/etc/timezone
+        owner=root
+        group=root
+        mode=0644
+        backup=no
+  notify:
+    - update timezone
+
+- include: ntpd.yml
+- include: sshd.yml
+- include: base-packages.yml
+

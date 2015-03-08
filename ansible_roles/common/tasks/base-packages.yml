@@ -1,0 +1,21 @@
+---
+  # Install base packages
+
+- name: Ensure all base packages for nodes are present
+  apt: pkg={{ item }} state={{ common_pkg_state }} update_cache=yes cache_valid_time=3600
+  with_items:
+  - build-essential
+  - linux-headers-{{ ansible_kernel }}
+  - gcc
+  - zlib1g-dev
+  - libssl-dev
+  - libreadline-gplv2-dev
+  - libyaml-dev
+  - curl
+  - wget
+  - vim
+  - git
+  - htop
+  - tmux
+  - apt-transport-https
+  - ca-certificates

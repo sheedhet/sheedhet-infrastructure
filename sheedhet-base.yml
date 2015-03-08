@@ -1,0 +1,14 @@
+---
+# The top-level playbook to build a Vagrant developer image
+
+- name: Provision a Vagrant based developer image
+  hosts: all
+  user: vagrant
+  sudo: yes
+  roles:
+    - common
+    - ruby
+    - postgresql
+    - nginx
+    - nodejs
+    - sheedhetbox
