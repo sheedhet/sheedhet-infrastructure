@@ -1,0 +1,8 @@
+---
+# This contains all handlers used in the postgresql role
+
+- name: restart postgresql
+  service: name=postgresql state=restarted
+
+- name: reload postgresql
+  service: name=postgresql state=reloaded

@@ -1,0 +1,13 @@
+---
+
+# PostgreSQL specific tuning parameters
+pg_max_connections: 100
+pg_shared_buffers: 128MB
+pg_work_mem: 4MB
+pg_maintenance_work_mem: 24MB
+pg_timezone: UTC
+pg_locale: en_US.UTF-8
+
+# Kernel/system specific tuning parameters
+kernel_shmmax: 1053503488
+kernel_shmall: 257203

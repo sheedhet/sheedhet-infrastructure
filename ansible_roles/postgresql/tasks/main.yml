@@ -1,0 +1,40 @@
+---
+# This playbook install PostgreSQL
+
+- name: Ensure PostgreSQL apt repository key is present
+  apt_key: id=ACCC4CF8
+           url=https://www.postgresql.org/media/keys/ACCC4CF8.asc
+           state=present
+
+- name: Ensure PostgreSQL apt repository is present
+  apt_repository: repo='deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'
+                  state=present
+
+- name: Ensure PostgreSQL is installed
+  apt: pkg={{ item }}
+       state=present
+       update_cache=yes
+       cache_valid_time=3600
+  with_items:
+  - libossp-uuid-dev
+  - postgresql-9.4
+  - postgresql-9.4-postgis-2.1
+  - postgresql-server-dev-9.4
+
+- name: Ensure PostgreSQL service enabled status is set to {{ start_at_boot }} value
+  service: name=postgresql enabled={{ start_at_boot }}
+
+- name: Ensure PostgreSQL is started so we can perform a few tasks
+  service: name=postgresql state=started
+
+- name: Ensure the psycopg2 package is present so we can manage PostgreSQL with Ansible
+  pip: name=psycopg2
+
+- include: postgresql_conf.yml
+
+- name: Ensure kernel shared memory is configured for PostgreSQL
+  copy: content='kernel.shmmax = {{ kernel_shmmax }}\nkernel.shmall = {{ kernel_shmall }}'
+        dest=/etc/sysctl.d/30-postgresql-shm.conf
+        owner=root
+        group=root
+        mode=0644

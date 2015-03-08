@@ -1,0 +1,58 @@
+---
+# This playbook tunes the main PostgreSQL configuration file (postgresql.conf)
+
+- name: Ensure PostgreSQL max_connections set to {{ pg_max_connections }}
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf
+              state=present
+              regexp='^(#)?max_connections ='
+              line='max_connections = {{ pg_max_connections }}'
+  notify:
+    - reload postgresql
+
+- name: Ensure PostgreSQL shared_buffers set to {{ pg_shared_buffers }}
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf
+              state=present
+              regexp='^(#)?shared_buffers ='
+              line='shared_buffers = {{ pg_shared_buffers }}'
+  notify:
+    - reload postgresql
+
+- name: Ensure PostgreSQL work_mem set to {{ pg_work_mem }}
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf
+              state=present
+              regexp='^(#)?work_mem ='
+              line='work_mem = {{ pg_work_mem }}'
+  notify:
+    - reload postgresql
+
+- name: Ensure PostgreSQL maintenance_work_mem set to {{ pg_maintenance_work_mem }}
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf
+              state=present
+              regexp='^(#)?maintenance_work_mem ='
+              line='maintenance_work_mem = {{ pg_maintenance_work_mem }}'
+  notify:
+    - reload postgresql
+
+- name: Ensure PostgreSQL timezone set to {{ pg_timezone }}
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf
+              state=present
+              regexp='^(#)?{{ item }} ='
+              line="{{ item }} = '{{ pg_timezone }}'"
+  with_items:
+    - log_timezone
+    - timezone
+  notify:
+    - reload postgresql
+
+- name: Ensure PostgreSQL locale set to {{ pg_locale }}
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf
+              state=present
+              regexp='^(#)?{{ item }} ='
+              line="{{ item }} = '{{ pg_locale }}'"
+  with_items:
+    - lc_messages
+    - lc_monetary
+    - lc_numeric
+    - lc_time
+  notify:
+    - reload postgresql
