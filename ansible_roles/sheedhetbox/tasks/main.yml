@@ -1,0 +1,77 @@
+---
+# This playbook contains all plays to setup a vagrant instance
+
+- name: Ensure NFS common tools are present
+  apt: package=nfs-common
+       state=present
+  tags: vagrant
+
+- name: Ensure we disable UseDNS for vagrant images
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^UseDNS"
+              line="UseDNS no"
+              state=present
+  notify: restart sshd
+  tags: vagrant
+
+- name: Ensure vagrant user can sudo without using a password
+  lineinfile: dest=/etc/sudoers
+              state=present
+              regexp='^%vagrant ALL='
+              line='%vagrant ALL=NOPASSWD:ALL'
+              validate='visudo -cf %s'
+  tags: vagrant
+
+- name: Ensure vagrant user is exempted from sudoers rules
+  lineinfile: dest=/etc/sudoers
+              state=present
+              regexp='^Defaults exempt_group="vagrant"'
+              line='Defaults exempt_group="vagrant"'
+              validate='visudo -cf %s'
+  tags: vagrant
+
+- name: Ensure vagrant user .ssh directory exists and has correct permissions
+  file: path=/home/vagrant/.ssh
+        state=directory
+        owner=vagrant
+        group=vagrant
+        mode=0700
+  tags: vagrant
+
+- name: Ensure vagrant user is configured with the vagrant insecure public key
+  get_url: url=https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub
+           dest=/home/vagrant/.ssh/authorized_keys
+           owner=vagrant
+           group=vagrant
+           mode=0600
+  tags: vagrant
+
+- name: Ensure .ansible folder is owned by vagrant user
+  file: path=/home/vagrant/.ansible
+        owner=vagrant
+        group=vagrant
+        mode=0755
+        state=directory
+        recurse=yes
+  tags: vagrant
+
+- name: Ensure .bundle folder is present for vagrant user
+  file: path=/home/vagrant/.bundle
+        owner=vagrant
+        group=vagrant
+        mode=0755
+        state=directory
+  tags: vagrant
+
+- name: Ensure vagrant user has developer friendly Bundler configuration
+  copy: src=bundle_config
+        dest=/home/vagrant/.bundle/config
+        owner=vagrant
+        group=vagrant
+        mode=0644
+  tags: vagrant
+
+- name: Ensure sheedhet specific packages are present
+  apt: pkg={{ item }} state={{ common_pkg_state }} update_cache=yes cache_valid_time=3600
+  with_items:
+  - dnsmasq
